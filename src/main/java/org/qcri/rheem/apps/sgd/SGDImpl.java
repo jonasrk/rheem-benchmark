@@ -4,6 +4,7 @@ import de.hpi.isg.profiledb.store.model.Experiment;
 import org.qcri.rheem.api.DataQuantaBuilder;
 import org.qcri.rheem.api.JavaPlanBuilder;
 import org.qcri.rheem.basic.data.Tuple2;
+import org.qcri.rheem.basic.operators.SampleOperator;
 import org.qcri.rheem.core.api.Configuration;
 import org.qcri.rheem.core.api.RheemContext;
 import org.qcri.rheem.core.function.ExecutionContext;
@@ -74,7 +75,7 @@ public class SGDImpl {
                 weightsBuilder.doWhile(new LoopCondition(accuracy, maxIterations), w -> {
                     // Sample the data and update the weights.
                     DataQuantaBuilder<?, double[]> newWeightsDataset = transformBuilder
-                            .sample(sampleSize).withDatasetSize(datasetSize).withBroadcast(w, "weights")
+                            .sample(sampleSize).withSampleMethod(SampleOperator.Methods.RANDOM).withDatasetSize(datasetSize).withBroadcast(w, "weights")
                             .map(new ComputeLogisticGradient()).withBroadcast(w, "weights").withName("compute")
                             .reduce(new Sum()).withName("reduce")
                             .map(new WeightsUpdate()).withBroadcast(w, "weights").withName("update");
