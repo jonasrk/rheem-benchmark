@@ -19,7 +19,6 @@ import org.qcri.rheem.spark.platform.SparkPlatform;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
