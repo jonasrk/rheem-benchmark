@@ -21,6 +21,8 @@
         <hadoop.version>2.2.0</hadoop.version>
         <graphchi.version>0.2.2</graphchi.version>
         <external.platforms.scope>test</external.platforms.scope>
+        <!-- Caused Errors in IntelliJ when hadoop was also set to test. -->
+        <external.platforms.scope.hadoop>compile</external.platforms.scope.hadoop>
     </properties>
 
     <profiles>
@@ -154,7 +156,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
-            <scope>${external.platforms.scope}</scope>
+            <scope>${external.platforms.scope.hadoop}</scope>
             <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
@@ -198,7 +200,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <scope>${external.platforms.scope}</scope>
+            <scope>${external.platforms.scope.hadoop}</scope>
             <version>${hadoop.version}</version>
             <exclusions>
                 <exclusion>
