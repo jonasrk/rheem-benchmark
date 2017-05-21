@@ -93,6 +93,7 @@ class Query3File(plugins: Plugin*) extends ExperimentDescriptor {
     // Read, filter, and project the line item data.
     val lineItems = planBuilder
       .readTextFile(lineitemFile)
+      .withCardinalityEstimator(1000000000)
       .withName("Read line items")
       .map(LineItem.parseCsv)
       .withName("Parse line items")
