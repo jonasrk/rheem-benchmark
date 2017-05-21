@@ -4,10 +4,12 @@ import de.hpi.isg.profiledb.store.model.Experiment;
 import org.qcri.rheem.api.DataQuantaBuilder;
 import org.qcri.rheem.api.JavaPlanBuilder;
 import org.qcri.rheem.basic.data.Tuple2;
+import org.qcri.rheem.basic.operators.SampleOperator;
 import org.qcri.rheem.core.api.Configuration;
 import org.qcri.rheem.core.api.RheemContext;
 import org.qcri.rheem.core.function.ExecutionContext;
 import org.qcri.rheem.core.function.FunctionDescriptor;
+import org.qcri.rheem.core.optimizer.cardinality.DefaultCardinalityEstimator;
 import org.qcri.rheem.core.plugin.Plugin;
 import org.qcri.rheem.core.util.RheemCollections;
 import org.qcri.rheem.core.util.Tuple;
@@ -62,26 +64,33 @@ public class SGDImpl {
         // Create initial weights.
         List<double[]> weights = Arrays.asList(new double[features]);
         final DataQuantaBuilder<?, double[]> weightsBuilder = javaPlanBuilder
-                .loadCollection(weights).withName("init weights");
+                .loadCollection(weights)
+                .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> features))
+                .withName("init weights");
 
         // Load and transform the data.
         final DataQuantaBuilder<?, double[]> transformBuilder = javaPlanBuilder
                 .readTextFile(datasetUrl).withName("source")
-                .map(new Transform(features)).withName("transform");
+                .map(new Transform(features)).withName("transform")
+                .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> datasetSize));
 
         // Do the SGD
         Collection<double[]> results =
                 weightsBuilder.doWhile(new LoopCondition(accuracy, maxIterations), w -> {
                     // Sample the data and update the weights.
                     DataQuantaBuilder<?, double[]> newWeightsDataset = transformBuilder
-                            .sample(sampleSize).withDatasetSize(datasetSize).withBroadcast(w, "weights")
+                            .sample(sampleSize).withSampleMethod(SampleOperator.Methods.RANDOM).withDatasetSize(datasetSize).withBroadcast(w, "weights")
+                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> sampleSize))
                             .map(new ComputeLogisticGradient()).withBroadcast(w, "weights").withName("compute")
+                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> sampleSize))
                             .reduce(new Sum()).withName("reduce")
+                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> 1))
                             .map(new WeightsUpdate()).withBroadcast(w, "weights").withName("update");
 
                     // Calculate the convergence criterion.
                     DataQuantaBuilder<?, Tuple2<Double, Double>> convergenceDataset = newWeightsDataset
-                            .map(new ComputeNorm()).withBroadcast(w, "weights");
+                            .map(new ComputeNorm()).withBroadcast(w, "weights")
+                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> features));
 
                     return new Tuple<>(newWeightsDataset, convergenceDataset);
                 }).withExpectedNumberOfIterations(maxIterations).collect();
