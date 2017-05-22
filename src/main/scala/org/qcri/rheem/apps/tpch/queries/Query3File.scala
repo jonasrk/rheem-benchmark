@@ -70,7 +70,7 @@ class Query3File(plugins: Plugin*) extends ExperimentDescriptor {
       .map(Customer.parseCsv)
       .withName("Parse customers")
 
-      .filter(_.mktSegment == _segment, selectivity = .001)
+      .filter(_.mktSegment == _segment, selectivity = .20)
       .withName("Filter customers")
 
       .map(_.custKey)
