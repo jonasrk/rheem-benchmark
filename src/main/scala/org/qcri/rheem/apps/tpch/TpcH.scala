@@ -26,6 +26,7 @@ object TpcH {
     val plugins = Parameters.loadPlugins(args(1))
     val configUrl = args(2)
     val queryName = args(3)
+    val selectivity = args(4).toDouble
 
     val jdbcPlatform = {
       val jdbcPlatforms = plugins
@@ -61,10 +62,11 @@ object TpcH {
         val result = query(configuration, jdbcPlatform, createTableSource)(experiment)
         StdOut.printLimited(result, 10)
       case "Q3File" =>
-        val query = new Query3File(plugins: _*)
+        val query = new Query3File(selectivity: Double, plugins: _*)
         experiment = Parameters.createExperiment(experimentArg, query)
         experiment.getSubject.addConfiguration("plugins", args(1))
         experiment.getSubject.addConfiguration("query", args(3))
+        experiment.getSubject.addConfiguration("selectivity", args(4))
         val result = query(configuration)(experiment)
         StdOut.printLimited(result, 10)
       case "Q3" =>
@@ -72,6 +74,7 @@ object TpcH {
         experiment = Parameters.createExperiment(experimentArg, query)
         experiment.getSubject.addConfiguration("plugins", args(1))
         experiment.getSubject.addConfiguration("query", args(3))
+        experiment.getSubject.addConfiguration("selectivity", args(4))
         val result = query(configuration, jdbcPlatform, createTableSource)(experiment)
         StdOut.printLimited(result, 10)
       case "Q3Hybrid" =>

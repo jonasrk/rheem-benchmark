@@ -36,7 +36,7 @@ import org.qcri.rheem.core.plugin.Plugin
   *   o_orderdate;
   * }}}
   */
-class Query3File(plugins: Plugin*) extends ExperimentDescriptor {
+class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescriptor {
 
   override def version = "0.1.0"
 
@@ -70,7 +70,7 @@ class Query3File(plugins: Plugin*) extends ExperimentDescriptor {
       .map(Customer.parseCsv)
       .withName("Parse customers")
 
-      .filter(_.mktSegment == _segment, selectivity = .20)
+      .filter(_.mktSegment == _segment, selectivity = selectivity)
       .withName("Filter customers")
 
       .map(_.custKey)
