@@ -65,14 +65,12 @@ public class SGDImpl {
         List<double[]> weights = Arrays.asList(new double[features]);
         final DataQuantaBuilder<?, double[]> weightsBuilder = javaPlanBuilder
                 .loadCollection(weights)
-                .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> features))
                 .withName("init weights");
 
         // Load and transform the data.
         final DataQuantaBuilder<?, double[]> transformBuilder = javaPlanBuilder
                 .readTextFile(datasetUrl).withName("source")
-                .map(new Transform(features)).withName("transform")
-                .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> datasetSize));
+                .map(new Transform(features)).withName("transform");
 
         // Do the SGD
         Collection<double[]> results =
@@ -80,17 +78,13 @@ public class SGDImpl {
                     // Sample the data and update the weights.
                     DataQuantaBuilder<?, double[]> newWeightsDataset = transformBuilder
                             .sample(sampleSize).withSampleMethod(SampleOperator.Methods.RANDOM).withDatasetSize(datasetSize).withBroadcast(w, "weights")
-                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> sampleSize))
                             .map(new ComputeLogisticGradient()).withBroadcast(w, "weights").withName("compute")
-                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> sampleSize))
                             .reduce(new Sum()).withName("reduce")
-                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> 1))
                             .map(new WeightsUpdate()).withBroadcast(w, "weights").withName("update");
 
                     // Calculate the convergence criterion.
                     DataQuantaBuilder<?, Tuple2<Double, Double>> convergenceDataset = newWeightsDataset
-                            .map(new ComputeNorm()).withBroadcast(w, "weights")
-                            .withCardinalityEstimator(new DefaultCardinalityEstimator(1, 1, false, in -> features));
+                            .map(new ComputeNorm()).withBroadcast(w, "weights");
 
                     return new Tuple<>(newWeightsDataset, convergenceDataset);
                 }).withExpectedNumberOfIterations(maxIterations).collect();
