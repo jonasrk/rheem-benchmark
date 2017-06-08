@@ -36,7 +36,7 @@ class WordCountScala(plugin: Plugin*) {
       .withUdfJarsOf(this.getClass)
       .readTextFile(inputUrl).withName("Load file")
       .flatMap(_.split("\\W+"), selectivity = wordsPerLine).withName("Split words")
-      .filter(_.nonEmpty, selectivity = 0.99,
+      .filterRepo(_.nonEmpty, selectivity = 0.99,
         udfSelectivity = LoadProfileEstimators.createFromSpecification(
           "my.udf.selectivity.key", configuration
         )).withName("Filter empty words")
