@@ -5,6 +5,7 @@ import org.qcri.rheem.api._
 import org.qcri.rheem.apps.util.{ExperimentDescriptor, Parameters, ProfileDBHelper}
 import org.qcri.rheem.core.api.{Configuration, RheemContext}
 import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval
+import org.qcri.rheem.core.optimizer.costs.LoadProfileEstimators
 import org.qcri.rheem.core.plugin.Plugin
 import org.qcri.rheem.core.util.fs.FileSystems
 
@@ -35,8 +36,14 @@ class WordCountScala(plugin: Plugin*) {
       .withUdfJarsOf(this.getClass)
       .readTextFile(inputUrl).withName("Load file")
       .flatMap(_.split("\\W+"), selectivity = wordsPerLine).withName("Split words")
-      .filter(_.nonEmpty, selectivity = 0.99).withName("Filter empty words")
-      .map(word => (word.toLowerCase, 1)).withName("To lower case, add counter")
+      .filter(_.nonEmpty, selectivity = 0.99,
+        udfSelectivity = LoadProfileEstimators.createFromSpecification(
+          "my.udf.selectivity.key", configuration
+        )).withName("Filter empty words")
+      .map(word => (word.toLowerCase, 1),
+        udfLoad = LoadProfileEstimators.createFromSpecification(
+          "my.udf.costfunction.key", configuration
+        )).withName("To lower case, add counter")
       .reduceByKey(_._1, (c1, c2) => (c1._1, c1._2 + c2._2)).withName("Add counters")
       .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .collect()
