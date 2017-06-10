@@ -25,7 +25,7 @@ class WordCountScala(plugin: Plugin*) {
     */
   def apply(inputUrl: String,
             wordsPerLine: ProbabilisticDoubleInterval = new ProbabilisticDoubleInterval(100, 10000, .8d))
-           (implicit configuration: Configuration, experiment: Experiment) = {
+           (implicit  configuration: Configuration, experiment: Experiment) = {
     val rheemCtx = new RheemContext(configuration)
     plugin.foreach(rheemCtx.register)
     val planBuilder = new PlanBuilder(rheemCtx)
@@ -40,7 +40,7 @@ class WordCountScala(plugin: Plugin*) {
         udfLoad = LoadProfileEstimators.createFromSpecification(
           "my.udf.costfunction.key", configuration
         ),
-        udfSelectivity = LoadProfileEstimators.createFromSpecification(
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.selectivity.key", configuration
         )).withName("Filter empty words")
       .map(word => (word.toLowerCase, 1),
