@@ -112,7 +112,7 @@ object Parameters {
       case doublePattern() => java.lang.Double.valueOf(str)
       case booleanPattern() => java.lang.Boolean.valueOf(str)
       case probabilisticDoubleIntervalPattern(lower, upper, conf) =>
-        new ProbabilisticDoubleInterval(lower.toDouble, upper.toDouble, if (conf == null) 1d else conf.substring(1).toDouble)
+        new ProbabilisticDoubleInterval(lower.toDouble, upper.toDouble, if (conf == null) 1d else conf.substring(1).toDouble, "")
       case other: String => other
     }
   }

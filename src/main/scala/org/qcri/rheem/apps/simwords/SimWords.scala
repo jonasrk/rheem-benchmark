@@ -138,7 +138,7 @@ object SimWords extends ExperimentDescriptor {
     val wordsPerLine = if (args.length >= 8) {
       experiment.getSubject.addConfiguration("wordsPerLine", args(7))
       Parameters.parseAny(args(7)).asInstanceOf[ProbabilisticDoubleInterval]
-    } else new ProbabilisticDoubleInterval(100, 10000, 0.9)
+    } else new ProbabilisticDoubleInterval(100, 10000, 0.9, "")
 
     val simWords = new SimWords(plugins: _*)
     val result = simWords(inputFile, minWordOccurrences, neighborhoodRead, numClusters, numIterations, wordsPerLine)

@@ -24,7 +24,7 @@ class WordCountScala(plugin: Plugin*) {
     * @return the counted words
     */
   def apply(inputUrl: String,
-            wordsPerLine: ProbabilisticDoubleInterval = new ProbabilisticDoubleInterval(100, 10000, .8d))
+            wordsPerLine: ProbabilisticDoubleInterval = new ProbabilisticDoubleInterval(100, 10000, .8d, ""))
            (implicit  configuration: Configuration, experiment: Experiment) = {
     val rheemCtx = new RheemContext(configuration)
     plugin.foreach(rheemCtx.register)

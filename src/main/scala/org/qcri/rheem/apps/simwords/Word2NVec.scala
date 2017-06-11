@@ -102,7 +102,7 @@ object Word2NVec extends ExperimentDescriptor {
     val wordsPerLine = if (args.length >= 7) {
       experiment.getSubject.addConfiguration("wordsPerLine", args(6))
       Parameters.parseAny(args(6)).asInstanceOf[ProbabilisticDoubleInterval]
-    } else new ProbabilisticDoubleInterval(100, 10000, 0.9)
+    } else new ProbabilisticDoubleInterval(100, 10000, 0.9, "")
 
     val word2NVec = new Word2NVec(plugins: _*)
     word2NVec(inputFile, minWordOccurrences, neighborhoodRead, wordsPerLine, outputFile)
