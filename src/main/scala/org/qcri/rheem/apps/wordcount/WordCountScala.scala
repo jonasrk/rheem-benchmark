@@ -38,10 +38,10 @@ class WordCountScala(plugin: Plugin*) {
       .flatMap(_.split("\\W+"), selectivity = wordsPerLine).withName("Split words")
       .filterRepo(_.nonEmpty, selectivity = 0.99,
         udfLoad = LoadProfileEstimators.createFromSpecification(
-          "my.udf.costfunction.key", configuration
+          "my.udf.wordcount.flatmap", configuration
         ),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.selectivity.key", configuration
+          "my.udf.worcount.filter", configuration
         )).withName("Filter empty words")
       .map(word => (word.toLowerCase, 1),
         udfLoad = LoadProfileEstimators.createFromSpecification(
