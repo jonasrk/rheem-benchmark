@@ -35,14 +35,28 @@ class WordCountScala(plugin: Plugin*) {
       .withExperiment(experiment)
       .withUdfJarsOf(this.getClass)
       .readTextFile(inputUrl).withName("Load file")
-      .flatMap(_.split("\\W+"), selectivity = wordsPerLine).withName("Split words")
+      .flatMapRepo(_.split("\\W+"), selectivity = wordsPerLine,
+        udfLoad = LoadProfileEstimators.createFromSpecification(
+          "my.udf.costfunction.key", configuration
+        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.wordcount.flatmap", configuration
+        )).withName("Split words")
       .filterRepo(_.nonEmpty, selectivity = 0.99,
         udfLoad = LoadProfileEstimators.createFromSpecification(
-          "my.udf.wordcount.flatmap", configuration
+          "my.udf.costfunction.key", configuration
         ),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.worcount.filter", configuration
         )).withName("Filter empty words")
+//      .flatMap(_.split("\\W+"), selectivity = wordsPerLine,
+//        udfLoad = LoadProfileEstimators.createFromSpecification(
+//          "my.udf.costfunction.key", configuration
+//        )).withName("Split words")
+//      .filter(_.nonEmpty, selectivity = 0.99,
+//        udfLoad = LoadProfileEstimators.createFromSpecification(
+//          "my.udf.costfunction.key", configuration
+//        )).withName("Filter empty words")
       .map(word => (word.toLowerCase, 1),
         udfLoad = LoadProfileEstimators.createFromSpecification(
           "my.udf.costfunction.key", configuration
