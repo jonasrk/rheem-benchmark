@@ -14,6 +14,7 @@ import org.qcri.rheem.core.util.ReflectionUtils;
 import org.qcri.rheem.java.Java;
 import org.qcri.rheem.java.platform.JavaPlatform;
 import org.qcri.rheem.spark.Spark;
+import org.qcri.rheem.spark.platform.SparkPlatform;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,7 +44,7 @@ public class Main {
                 new FlatMapDescriptor<>(line -> Arrays.asList(line.split("\\W+")),
                         String.class,
                         String.class,
-                        new ProbabilisticDoubleInterval(100, 10000, 0.8, "")
+                        new ProbabilisticDoubleInterval(100, 10000, 0.8)
                 )
         );
         flatMapOperator.setName("Split words");
