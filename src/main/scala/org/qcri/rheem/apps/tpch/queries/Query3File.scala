@@ -6,6 +6,7 @@ import org.qcri.rheem.apps.tpch.CsvUtils
 import org.qcri.rheem.apps.tpch.data.{Customer, LineItem, Order}
 import org.qcri.rheem.apps.util.ExperimentDescriptor
 import org.qcri.rheem.core.api.{Configuration, RheemContext}
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval
 import org.qcri.rheem.core.plugin.Plugin
 
 /**
@@ -70,7 +71,12 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
       .map(Customer.parseCsv)
       .withName("Parse customers")
 
-      .filter(_.mktSegment == _segment, selectivity = selectivity)
+      .filter(_.mktSegment == _segment,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.tpchq3file.filter1", configuration
+//        ),
+        udfSelectivityKey = "my.udf.tpchq3file.filter1"
+      )
       .withName("Filter customers")
 
       .map(_.custKey)
@@ -84,7 +90,12 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
       .map(Order.parseCsv)
       .withName("Parse orders")
 
-      .filter(_.orderDate < _date)
+      .filter(_.orderDate < _date,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.tpchq3file.filter2", configuration
+//        ),
+        udfSelectivityKey = "my.udf.tpchq3file.filter2"
+      )
       .withName("Filter orders")
 
       .map(order => (order.orderKey, order.custKey, order.orderDate, order.shipPrioritiy))
@@ -97,7 +108,12 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
       .map(LineItem.parseCsv)
       .withName("Parse line items")
 
-      .filter(_.shipDate > _date)
+      .filter(_.shipDate > _date,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.tpchq3file.filter3", configuration
+//        ),
+        udfSelectivityKey = "my.udf.tpchq3file.filter3"
+      )
       .withName("Filter line items")
 
       .map(li => (li.orderKey, li.extendedPrice * (1 - li.discount)))

@@ -37,11 +37,21 @@ class SimWords(plugins: Plugin*) {
     val _minWordOccurrences = minWordOccurrences
     val wordIds = planBuilder
       .readTextFile(inputFile).withName("Read corpus (1)")
-      .flatMapJava(new ScrubFunction, selectivity = wordsPerLine).withName("Split & scrub")
+      .flatMapJava(new ScrubFunction,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.SimWords.flatMapJava1", configuration
+//        ),
+        udfSelectivityKey = "my.udf.SimWords.flatMapJava1"
+      ).withName("Split & scrub")
       .map(word => (word, 1)).withName("Add word counter")
       .reduceByKey(_._1, (wc1, wc2) => (wc1._1, wc1._2 + wc2._2)).withName("Sum word counters")
       .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
-      .filter(_._2 >= _minWordOccurrences, selectivity = 10d / (9d + minWordOccurrences))
+      .filter(_._2 >= _minWordOccurrences,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.SimWords.filter1", configuration
+//        ),
+        udfSelectivityKey = "my.udf.SimWords.filter1"
+      )
       .withName("Filter frequent words")
       .map(_._1).withName("Strip word counter")
       .zipWithId.withName("Zip with ID")
@@ -53,7 +63,10 @@ class SimWords(plugins: Plugin*) {
       .readTextFile(inputFile).withName("Read corpus (2)")
       .flatMapJava(
         new CreateWordNeighborhoodFunction(neighborhoodReach, "wordIds"),
-        selectivity = wordsPerLine,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.SimWords.flatMapJava2", configuration
+//        ),
+        udfSelectivityKey = "my.udf.SimWords.flatMapJava2",
         udfLoad = LoadProfileEstimators.createFromSpecification("rheem.apps.simwords.udfs.create-neighborhood.load", configuration)
 
       )
@@ -74,11 +87,16 @@ class SimWords(plugins: Plugin*) {
     val initialCentroids = wordIds
       .map(_._2).withName("Strip words")
       .group().withName("Group IDs")
-      .flatMap { ids =>
+      .flatMap({ ids =>
         import scala.collection.JavaConversions._
         val idArray = ids.toArray
         for (i <- 0 to _numClusters) yield (i, SparseVector.createRandom(idArray, .99, _numClusters))
-      }.withName("Generate centroids")
+      },
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.SimWords.flatMap", configuration
+        ),
+        udfSelectivityKey = "my.udf.SimWords.flatMap"
+      ).withName("Generate centroids")
 
     // Run k-means on the vectors.
     val finalCentroids = initialCentroids.repeat(numIterations, { centroids: DataQuanta[(Int, SparseVector)] =>

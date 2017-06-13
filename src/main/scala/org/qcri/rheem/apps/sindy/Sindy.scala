@@ -10,6 +10,7 @@ import org.qcri.rheem.apps.sindy.Sindy.{CellCreator, CellMerger, IndCandidateGen
 import org.qcri.rheem.apps.util.{Parameters, ProfileDBHelper, StdOut}
 import org.qcri.rheem.core.api.{Configuration, RheemContext}
 import org.qcri.rheem.core.function.FunctionDescriptor.{SerializableBinaryOperator, SerializableFunction}
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval
 import org.qcri.rheem.core.plugin.Plugin
 import org.qcri.rheem.core.util.fs.FileSystems
 
@@ -41,16 +42,31 @@ class Sindy(plugins: Plugin*) {
       .map { case (path, offset) =>
         planBuilder
           .readTextFile(path).withName(s"Load $path")
-          .flatMapJava(new CellCreator(offset, seperator)).withName(s"Create cells for $path")
+          .flatMapJava(new CellCreator(offset, seperator),
+//            udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//              "my.udf.Sindy.flatmap1", configuration
+//            ),
+            udfSelectivityKey = "my.udf.Sindy.flatmap1"
+          ).withName(s"Create cells for $path")
       }
       .reduce(_ union _)
 
     val rawInds = allCells
       .map(cell => (cell._1, Array(cell._2))).withName("Prepare cell merging")
       .reduceByKeyJava(toSerializableFunction(_._1), new CellMerger).withName("Merge cells")
-      .flatMapJava(new IndCandidateGenerator).withName("Generate IND candidate sets")
+      .flatMapJava(new IndCandidateGenerator,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.Sindy.flatmap1", configuration
+//        ),
+        udfSelectivityKey = "my.udf.Sindy.flatmap1"
+      ).withName("Generate IND candidate sets")
       .reduceByKeyJava(toSerializableFunction(_._1), new IndCandidateMerger).withName("Merge IND candidate sets")
-      .filter(_._2.length > 0).withName("Filter empty candidate sets")
+      .filter(_._2.length > 0,
+//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//          "my.udf.Sindy.filter1", configuration
+//        ),
+        udfSelectivityKey = "my.udf.Sindy.filter1"
+      ).withName("Filter empty candidate sets")
       .collect()
 
     def resolveColumnId(id: Int) = fileColumnIdOffsets

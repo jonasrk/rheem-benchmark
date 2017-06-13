@@ -8,6 +8,7 @@ import org.qcri.rheem.apps.util.{ExperimentDescriptor, Parameters, ProfileDBHelp
 import org.qcri.rheem.core.api.{Configuration, RheemContext}
 import org.qcri.rheem.core.function.ExecutionContext
 import org.qcri.rheem.core.function.FunctionDescriptor.ExtendedSerializableFunction
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval
 import org.qcri.rheem.core.optimizer.costs.LoadProfileEstimators
 import org.qcri.rheem.core.plugin.Plugin
 import org.qcri.rheem.core.util.fs.FileSystems
@@ -19,7 +20,8 @@ import scala.util.Random
   * K-Means app for Rheem.
   * <p>Note the UDF load property `rheem.apps.kmeans.udfs.select-centroid.load`.</p>
   */
-class Kmeans(plugin: Plugin*) {
+class
+Kmeans(plugin: Plugin*) {
 
   def apply(k: Int, inputFile: String, iterations: Int = 20, isResurrect: Boolean = true)
            (implicit experiment: Experiment, configuration: Configuration): Iterable[Point] = {
@@ -65,7 +67,12 @@ class Kmeans(plugin: Plugin*) {
           .flatMap(num => {
             if (num < _k) println(s"Resurrecting ${_k - num} point(s).")
             Kmeans.createRandomCentroids(_k - num)
-          }).withName("Resurrect centroids")
+          },
+//            udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+//              "my.udf.kmeans.flatmap", configuration
+//            ),
+            udfSelectivityKey = "my.udf.kmeans.flatmap"
+          ).withName("Resurrect centroids")
         newCentroids.union(resurrectedCentroids).withName("New+resurrected centroids").withCardinalityEstimator(k)
       } else newCentroids
     }).withName("Loop")
