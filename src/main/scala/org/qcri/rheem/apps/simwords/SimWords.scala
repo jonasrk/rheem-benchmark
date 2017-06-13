@@ -38,18 +38,18 @@ class SimWords(plugins: Plugin*) {
     val wordIds = planBuilder
       .readTextFile(inputFile).withName("Read corpus (1)")
       .flatMapJava(new ScrubFunction,
-//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//          "my.udf.SimWords.flatMapJava1", configuration
-//        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.SimWords.flatMapJava1", configuration
+        ),
         udfSelectivityKey = "my.udf.SimWords.flatMapJava1"
       ).withName("Split & scrub")
       .map(word => (word, 1)).withName("Add word counter")
       .reduceByKey(_._1, (wc1, wc2) => (wc1._1, wc1._2 + wc2._2)).withName("Sum word counters")
       .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .filter(_._2 >= _minWordOccurrences,
-//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//          "my.udf.SimWords.filter1", configuration
-//        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.SimWords.filter1", configuration
+        ),
         udfSelectivityKey = "my.udf.SimWords.filter1"
       )
       .withName("Filter frequent words")
@@ -63,9 +63,9 @@ class SimWords(plugins: Plugin*) {
       .readTextFile(inputFile).withName("Read corpus (2)")
       .flatMapJava(
         new CreateWordNeighborhoodFunction(neighborhoodReach, "wordIds"),
-//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//          "my.udf.SimWords.flatMapJava2", configuration
-//        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.SimWords.flatMapJava2", configuration
+        ),
         udfSelectivityKey = "my.udf.SimWords.flatMapJava2",
         udfLoad = LoadProfileEstimators.createFromSpecification("rheem.apps.simwords.udfs.create-neighborhood.load", configuration)
 

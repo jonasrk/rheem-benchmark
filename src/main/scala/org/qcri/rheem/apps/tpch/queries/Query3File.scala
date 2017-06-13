@@ -72,9 +72,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
       .withName("Parse customers")
 
       .filter(_.mktSegment == _segment,
-//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//          "my.udf.tpchq3file.filter1", configuration
-//        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.tpchq3file.filter1", configuration
+        ),
         udfSelectivityKey = "my.udf.tpchq3file.filter1"
       )
       .withName("Filter customers")
@@ -91,9 +91,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
       .withName("Parse orders")
 
       .filter(_.orderDate < _date,
-//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//          "my.udf.tpchq3file.filter2", configuration
-//        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.tpchq3file.filter2", configuration
+        ),
         udfSelectivityKey = "my.udf.tpchq3file.filter2"
       )
       .withName("Filter orders")
@@ -109,9 +109,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
       .withName("Parse line items")
 
       .filter(_.shipDate > _date,
-//        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//          "my.udf.tpchq3file.filter3", configuration
-//        ),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.tpchq3file.filter3", configuration
+        ),
         udfSelectivityKey = "my.udf.tpchq3file.filter3"
       )
       .withName("Filter line items")

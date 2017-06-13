@@ -68,9 +68,9 @@ Kmeans(plugin: Plugin*) {
             if (num < _k) println(s"Resurrecting ${_k - num} point(s).")
             Kmeans.createRandomCentroids(_k - num)
           },
-//            udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-//              "my.udf.kmeans.flatmap", configuration
-//            ),
+            udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+              "my.udf.kmeans.flatmap", configuration
+            ),
             udfSelectivityKey = "my.udf.kmeans.flatmap"
           ).withName("Resurrect centroids")
         newCentroids.union(resurrectedCentroids).withName("New+resurrected centroids").withCardinalityEstimator(k)
