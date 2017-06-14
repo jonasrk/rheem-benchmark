@@ -6,6 +6,7 @@ import org.qcri.rheem.api.{DataQuanta, PlanBuilder}
 import org.qcri.rheem.apps.util.{ExperimentDescriptor, Parameters, ProfileDBHelper, StdOut}
 import org.qcri.rheem.core.api.exception.RheemException
 import org.qcri.rheem.core.api.{Configuration, RheemContext}
+import org.qcri.rheem.core.optimizer.ProbabilisticDoubleInterval
 import org.qcri.rheem.core.plugin.Plugin
 import org.qcri.rheem.core.util.fs.FileSystems
 
@@ -38,7 +39,11 @@ class CrocoPR(plugins: Plugin*) {
     // Merge the links.
     val allLinks = links1
       .union(links2).withName("Union links")
-      .distinct.withName("Distinct links")
+      .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.CrocoPR.distinct", configuration
+        ),
+        udfSelectivityKey = "my.udf.CrocoPR.distinct"
+      ).withName("Distinct links")
 
     // Create vertex IDs.
     val vertexIds = allLinks
