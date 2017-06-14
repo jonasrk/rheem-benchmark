@@ -53,7 +53,12 @@ Kmeans(plugin: Plugin*) {
           udfLoad = LoadProfileEstimators.createFromSpecification("rheem.apps.kmeans.udfs.select-centroid.load", configuration)
         )
         .withBroadcast(currentCentroids, "centroids").withName("Find nearest centroid")
-        .reduceByKey(_.centroidId, _ + _).withName("Add up points")
+        .reduceByKey(_.centroidId, _ + _,
+          udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+            "my.udf.kmeans.reduceByKey", configuration
+          ),
+          udfSelectivityKey = "my.udf.kmeans.reduceByKey"
+        ).withName("Add up points")
         .withCardinalityEstimator(k)
         .map(_.average).withName("Average points")
 

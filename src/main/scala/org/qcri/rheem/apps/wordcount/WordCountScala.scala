@@ -48,7 +48,12 @@ class WordCountScala(plugin: Plugin*) {
         udfSelectivityKey = "my.udf.wordcount.filter"
       ).withName("Filter empty words")
       .map(word => (word.toLowerCase, 1)).withName("To lower case, add counter")
-      .reduceByKey(_._1, (c1, c2) => (c1._1, c1._2 + c2._2)).withName("Add counters")
+      .reduceByKey(_._1, (c1, c2) => (c1._1, c1._2 + c2._2),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.wordcount.reduce", configuration
+        ),
+        udfSelectivityKey = "my.udf.wordcount.reduce"
+      ).withName("Add counters")
       .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .collect()
   }

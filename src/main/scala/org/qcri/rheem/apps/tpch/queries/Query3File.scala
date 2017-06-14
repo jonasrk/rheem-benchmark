@@ -141,7 +141,12 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
         (t1, t2) => {
           t1.revenue += t2.revenue;
           t2
-        }
+        },
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.tpchq3file.reduce", configuration
+        ),
+        udfSelectivityKey = "my.udf.tpchq3file.reduce"
+
       )
       .withName("Aggregate revenue")
       .collect()
