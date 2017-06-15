@@ -14,8 +14,8 @@
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rheem.version>0.3.1-SNAPSHOT</rheem.version>
-        <scala.version>2.10.5</scala.version>
-        <scala.compat.version>2.10</scala.compat.version>
+        <scala.version>2.11.0</scala.version>
+        <scala.compat.version>2.11</scala.compat.version>
         <spark.version>1.6.2</spark.version>
         <!-- This Hadoop version is enforced by Spark in the version that is deployed in the Maven repository via code signing. -->
         <hadoop.version>2.2.0</hadoop.version>
@@ -82,12 +82,12 @@
         </dependency>
         <dependency>
             <groupId>org.qcri.rheem</groupId>
-            <artifactId>rheem-spark_2.10</artifactId>
+            <artifactId>rheem-spark_2.11</artifactId>
             <version>${rheem.version}</version>
         </dependency>
         <dependency>
             <groupId>org.qcri.rheem</groupId>
-            <artifactId>rheem-graphchi_2.10</artifactId>
+            <artifactId>rheem-graphchi_2.11</artifactId>
             <version>${rheem.version}</version>
         </dependency>
         <dependency>
@@ -102,7 +102,7 @@
         </dependency>
         <dependency>
             <groupId>org.qcri.rheem</groupId>
-            <artifactId>rheem-api_2.10</artifactId>
+            <artifactId>rheem-api_2.11</artifactId>
             <version>${rheem.version}</version>
         </dependency>
 
