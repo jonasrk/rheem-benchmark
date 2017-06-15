@@ -16,9 +16,9 @@
         <rheem.version>0.3.1-SNAPSHOT</rheem.version>
         <scala.version>2.10.5</scala.version>
         <scala.compat.version>2.10</scala.compat.version>
-        <spark.version>1.6.3</spark.version>
+        <spark.version>1.6.2</spark.version>
         <!-- This Hadoop version is enforced by Spark in the version that is deployed in the Maven repository via code signing. -->
-        <hadoop.version>2.7.3</hadoop.version>
+        <hadoop.version>2.2.0</hadoop.version>
         <graphchi.version>0.2.2</graphchi.version>
         <external.platforms.scope>test</external.platforms.scope>
         <!-- Caused Errors in IntelliJ when hadoop was also set to test. -->
