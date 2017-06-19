@@ -56,9 +56,9 @@ class Sindy(plugins: Plugin*) {
       .reduceByKeyJava(toSerializableFunction(_._1), new CellMerger).withName("Merge cells")
       .flatMapJava(new IndCandidateGenerator,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.Sindy.flatmap1", configuration
+          "my.udf.Sindy.flatmap2", configuration
         ),
-        udfSelectivityKey = "my.udf.Sindy.flatmap1"
+        udfSelectivityKey = "my.udf.Sindy.flatmap2"
       ).withName("Generate IND candidate sets")
       .reduceByKeyJava(toSerializableFunction(_._1), new IndCandidateMerger).withName("Merge IND candidate sets")
       .filter(_._2.length > 0,
