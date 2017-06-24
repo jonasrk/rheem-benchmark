@@ -37,7 +37,7 @@ import org.qcri.rheem.core.plugin.Plugin
   *   o_orderdate;
   * }}}
   */
-class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescriptor {
+class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) extends ExperimentDescriptor {
 
   override def version = "0.1.0"
 
@@ -73,9 +73,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
 
       .filter(_.mktSegment == _segment,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.filter1", configuration
+          configUrl + "-my.udf.tpchq3file.filter1", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.filter1"
+        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.filter1"
       )
       .withName("Filter customers")
 
@@ -92,9 +92,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
 
       .filter(_.orderDate < _date,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.filter2", configuration
+          configUrl + "-my.udf.tpchq3file.filter2", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.filter2"
+        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.filter2"
       )
       .withName("Filter orders")
 
@@ -110,9 +110,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
 
       .filter(_.shipDate > _date,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.filter3", configuration
+          configUrl + "-my.udf.tpchq3file.filter3", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.filter3"
+        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.filter3"
       )
       .withName("Filter line items")
 
@@ -143,9 +143,9 @@ class Query3File(selectivity: Double, plugins: Plugin*) extends ExperimentDescri
           t2
         },
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.reduce", configuration
+          configUrl + "-my.udf.tpchq3file.reduce", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.reduce"
+        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.reduce"
 
       )
       .withName("Aggregate revenue")

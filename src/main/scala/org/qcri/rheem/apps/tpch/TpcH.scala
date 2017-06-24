@@ -62,7 +62,7 @@ object TpcH {
         val result = query(configuration, jdbcPlatform, createTableSource)(experiment)
         StdOut.printLimited(result, 10)
       case "Q3File" =>
-        val query = new Query3File(selectivity: Double, plugins: _*)
+        val query = new Query3File(selectivity: Double, configUrl: String, plugins: _*)
         experiment = Parameters.createExperiment(experimentArg, query)
         experiment.getSubject.addConfiguration("plugins", args(1))
         experiment.getSubject.addConfiguration("query", args(3))
