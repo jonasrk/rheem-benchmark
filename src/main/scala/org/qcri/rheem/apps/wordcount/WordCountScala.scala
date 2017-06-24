@@ -37,22 +37,22 @@ class WordCountScala(plugin: Plugin*) {
       .readTextFile(inputUrl).withName("Load file")
       .flatMap(_.split("\\W+"),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.wordcount.flatmap", configuration
+          inputUrl + "-my.udf.wordcount.flatmap", configuration
         ),
-        udfSelectivityKey = "my.udf.wordcount.flatmap"
+        udfSelectivityKey = inputUrl + "-my.udf.wordcount.flatmap"
        ).withName("Split words")
       .filter(_.nonEmpty,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.wordcount.filter", configuration
+          inputUrl + "-my.udf.wordcount.filter", configuration
         ),
-        udfSelectivityKey = "my.udf.wordcount.filter"
+        udfSelectivityKey = inputUrl + "-my.udf.wordcount.filter"
       ).withName("Filter empty words")
       .map(word => (word.toLowerCase, 1)).withName("To lower case, add counter")
       .reduceByKey(_._1, (c1, c2) => (c1._1, c1._2 + c2._2),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.wordcount.reduce", configuration
+          inputUrl + "-my.udf.wordcount.reduce", configuration
         ),
-        udfSelectivityKey = "my.udf.wordcount.reduce"
+        udfSelectivityKey = inputUrl + "-my.udf.wordcount.reduce"
       ).withName("Add counters")
       .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .collect()
