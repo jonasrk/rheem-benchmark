@@ -73,9 +73,9 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
       .filter(_.mktSegment == _segment,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          configUrl + "-my.udf.tpchq3file.filter1", configuration
+          "my.udf.tpchq3file.filter1-" + configUrl, configuration
         ),
-        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.filter1"
+        udfSelectivityKey = "my.udf.tpchq3file.filter1-" + configUrl
       )
       .withName("Filter customers")
 
@@ -92,9 +92,9 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
       .filter(_.orderDate < _date,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          configUrl + "-my.udf.tpchq3file.filter2", configuration
+          "my.udf.tpchq3file.filter2-" + configUrl, configuration
         ),
-        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.filter2"
+        udfSelectivityKey = "my.udf.tpchq3file.filter2-" + configUrl
       )
       .withName("Filter orders")
 
@@ -110,9 +110,9 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
       .filter(_.shipDate > _date,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          configUrl + "-my.udf.tpchq3file.filter3", configuration
+          "my.udf.tpchq3file.filter3-" + configUrl, configuration
         ),
-        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.filter3"
+        udfSelectivityKey = "my.udf.tpchq3file.filter3-" + configUrl
       )
       .withName("Filter line items")
 
@@ -143,9 +143,9 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
           t2
         },
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          configUrl + "-my.udf.tpchq3file.reduce", configuration
+          "my.udf.tpchq3file.reduce-" + configUrl, configuration
         ),
-        udfSelectivityKey = configUrl + "-my.udf.tpchq3file.reduce"
+        udfSelectivityKey = "my.udf.tpchq3file.reduce-" + configUrl
 
       )
       .withName("Aggregate revenue")
