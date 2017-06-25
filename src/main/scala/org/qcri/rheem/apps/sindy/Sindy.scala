@@ -44,28 +44,38 @@ class Sindy(plugins: Plugin*) {
           .readTextFile(path).withName(s"Load $path")
           .flatMapJava(new CellCreator(offset, seperator),
             udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-              paths + "-my.udf.Sindy.flatmap1", configuration
+              "my.udf.Sindy.flatmap1-" + paths, configuration
             ),
-            udfSelectivityKey = paths + "-my.udf.Sindy.flatmap1"
+            udfSelectivityKey = "my.udf.Sindy.flatmap1-" + paths
           ).withName(s"Create cells for $path")
       }
       .reduce(_ union _)
 
     val rawInds = allCells
       .map(cell => (cell._1, Array(cell._2))).withName("Prepare cell merging")
-      .reduceByKeyJava(toSerializableFunction(_._1), new CellMerger).withName("Merge cells")
+      .reduceByKeyJava(toSerializableFunction(_._1), new CellMerger,
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.Sindy.reduceBy1" + paths, configuration
+        ),
+        udfSelectivityKey = "my.udf.Sindy.reduceBy1-" + paths
+      ).withName("Merge cells")
       .flatMapJava(new IndCandidateGenerator,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          paths + "-my.udf.Sindy.flatmap2", configuration
+          "my.udf.Sindy.flatmap2-" + paths, configuration
         ),
-        udfSelectivityKey = paths + "-my.udf.Sindy.flatmap2"
+        udfSelectivityKey = "my.udf.Sindy.flatmap2-" + paths
       ).withName("Generate IND candidate sets")
-      .reduceByKeyJava(toSerializableFunction(_._1), new IndCandidateMerger).withName("Merge IND candidate sets")
+      .reduceByKeyJava(toSerializableFunction(_._1), new IndCandidateMerger,
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.Sindy.reduceBy2" + paths, configuration
+        ),
+        udfSelectivityKey = "my.udf.Sindy.reduceBy2-" + paths
+      ).withName("Merge IND candidate sets")
       .filter(_._2.length > 0,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          paths + "-my.udf.Sindy.filter1", configuration
+          "my.udf.Sindy.filter1-" + paths, configuration
         ),
-        udfSelectivityKey = paths + "-my.udf.Sindy.filter1"
+        udfSelectivityKey = "my.udf.Sindy.filter1-" + paths
       ).withName("Filter empty candidate sets")
       .collect()
 
