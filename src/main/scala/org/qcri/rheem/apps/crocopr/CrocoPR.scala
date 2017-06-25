@@ -38,17 +38,31 @@ class CrocoPR(plugins: Plugin*) {
 
     // Merge the links.
     val allLinks = links1
-      .union(links2).withName("Union links")
-      .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          inputUrl1 + "-my.udf.CrocoPR.distinct", configuration
+      .union(links2,
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.CrocoPR.union-" + inputUrl1, configuration
         ),
-        udfSelectivityKey = inputUrl1 + "-my.udf.CrocoPR.distinct"
+        udfSelectivityKey = "my.udf.CrocoPR.union-" + inputUrl1
+      ).withName("Union links")
+      .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.CrocoPR.distinct1-" + inputUrl1, configuration
+        ),
+        udfSelectivityKey = "my.udf.CrocoPR.distinct1-" + inputUrl1
       ).withName("Distinct links")
 
     // Create vertex IDs.
     val vertexIds = allLinks
-      .flatMap(link => Seq(link._1, link._2)).withName("Flatten vertices")
-      .distinct.withName("Distinct vertices")
+      .flatMap(link => Seq(link._1, link._2),
+        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+          "my.udf.CrocoPR.flatMap-" + inputUrl1, configuration
+        ),
+        udfSelectivityKey = "my.udf.CrocoPR.flatMap-" + inputUrl1
+      ).withName("Flatten vertices")
+      .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+        "my.udf.CrocoPR.distinct2-" + inputUrl1, configuration
+      ),
+        udfSelectivityKey = "my.udf.CrocoPR.distinct2-" + inputUrl1
+      ).withName("Distinct vertices")
       .zipWithId.withName("Add vertex IDs")
 
 

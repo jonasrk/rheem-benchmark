@@ -55,9 +55,9 @@ Kmeans(plugin: Plugin*) {
         .withBroadcast(currentCentroids, "centroids").withName("Find nearest centroid")
         .reduceByKey(_.centroidId, _ + _,
           udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-            inputFile + "-my.udf.kmeans.reduceByKey", configuration
+            "my.udf.kmeans.reduceByKey-" + inputFile, configuration
           ),
-          udfSelectivityKey = inputFile + "-my.udf.kmeans.reduceByKey"
+          udfSelectivityKey = "my.udf.kmeans.reduceByKey-" + inputFile
         ).withName("Add up points")
         .withCardinalityEstimator(k)
         .map(_.average).withName("Average points")
@@ -74,11 +74,16 @@ Kmeans(plugin: Plugin*) {
             Kmeans.createRandomCentroids(_k - num)
           },
             udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-              inputFile + "-my.udf.kmeans.flatmap", configuration
+              "my.udf.kmeans.flatmap-" + inputFile, configuration
             ),
-            udfSelectivityKey = inputFile + "-my.udf.kmeans.flatmap"
+            udfSelectivityKey = "my.udf.kmeans.flatmap-" + inputFile
           ).withName("Resurrect centroids")
-        newCentroids.union(resurrectedCentroids).withName("New+resurrected centroids").withCardinalityEstimator(k)
+        newCentroids.union(resurrectedCentroids,
+          udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+            "my.udf.kmeans.union-" + inputFile, configuration
+          ),
+          udfSelectivityKey = "my.udf.kmeans.union-" + inputFile
+        ).withName("New+resurrected centroids").withCardinalityEstimator(k)
       } else newCentroids
     }).withName("Loop")
 
