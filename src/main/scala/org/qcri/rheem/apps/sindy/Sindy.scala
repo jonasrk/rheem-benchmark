@@ -55,7 +55,7 @@ class Sindy(plugins: Plugin*) {
       .map(cell => (cell._1, Array(cell._2))).withName("Prepare cell merging")
       .reduceByKeyJava(toSerializableFunction(_._1), new CellMerger,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.Sindy.reduceBy1" + paths, configuration
+          "my.udf.Sindy.reduceBy1-" + paths, configuration
         ),
         udfSelectivityKey = "my.udf.Sindy.reduceBy1-" + paths
       ).withName("Merge cells")
@@ -67,7 +67,7 @@ class Sindy(plugins: Plugin*) {
       ).withName("Generate IND candidate sets")
       .reduceByKeyJava(toSerializableFunction(_._1), new IndCandidateMerger,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.Sindy.reduceBy2" + paths, configuration
+          "my.udf.Sindy.reduceBy2-" + paths, configuration
         ),
         udfSelectivityKey = "my.udf.Sindy.reduceBy2-" + paths
       ).withName("Merge IND candidate sets")
