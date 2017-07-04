@@ -38,12 +38,7 @@ class CrocoPR(plugins: Plugin*) {
 
     // Merge the links.
     val allLinks = links1
-      .union(links2,
-        udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.CrocoPR.union-" + inputUrl1, configuration
-        ),
-        udfSelectivityKey = "my.udf.CrocoPR.union-" + inputUrl1
-      ).withName("Union links")
+      .union(links2).withName("Union links")
       .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.CrocoPR.distinct1-" + inputUrl1, configuration
         ),

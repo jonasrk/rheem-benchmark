@@ -78,12 +78,7 @@ Kmeans(plugin: Plugin*) {
             ),
             udfSelectivityKey = "my.udf.kmeans.flatmap-" + inputFile
           ).withName("Resurrect centroids")
-        newCentroids.union(resurrectedCentroids,
-          udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-            "my.udf.kmeans.union-" + inputFile, configuration
-          ),
-          udfSelectivityKey = "my.udf.kmeans.union-" + inputFile
-        ).withName("New+resurrected centroids").withCardinalityEstimator(k)
+        newCentroids.union(resurrectedCentroids).withName("New+resurrected centroids").withCardinalityEstimator(k)
       } else newCentroids
     }).withName("Loop")
 
