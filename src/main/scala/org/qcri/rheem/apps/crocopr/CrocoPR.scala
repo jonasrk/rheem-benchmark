@@ -68,11 +68,21 @@ class CrocoPR(plugins: Plugin*) {
 
     type VertexId = org.qcri.rheem.basic.data.Tuple2[Vertex, String]
     val edges = allLinks
-      .join[VertexId, String](_._1, vertexIds, _.field1).withName("Join source vertex IDs")
+      .join[VertexId, String](_._1, vertexIds, _.field1,
+      udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+        "my.udf.CrocoPR.join1-" + inputUrl1, configuration
+      ),
+      udfSelectivityKey = "my.udf.CrocoPR.join1-" + inputUrl1
+    ).withName("Join source vertex IDs")
       .map { linkAndVertexId =>
         (linkAndVertexId.field1.field0, linkAndVertexId.field0._2)
       }.withName("Set source vertex ID")
-      .join[VertexId, String](_._2, vertexIds, _.field1).withName("Join target vertex IDs")
+      .join[VertexId, String](_._2, vertexIds, _.field1,
+      udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+        "my.udf.CrocoPR.join2-" + inputUrl1, configuration
+      ),
+      udfSelectivityKey = "my.udf.CrocoPR.join2-" + inputUrl1
+    ).withName("Join target vertex IDs")
       .map(linkAndVertexId => new Edge(linkAndVertexId.field0._1, linkAndVertexId.field1.field0)).withName("Set target vertex ID")
 
     // Run the PageRank.
@@ -81,7 +91,12 @@ class CrocoPR(plugins: Plugin*) {
     // Make the page ranks readable.
     pageRanks
       .map(identity).withName("Hotfix")
-      .join[VertexId, Long](_.field0, vertexIds, _.field0).withName("Join page ranks with vertex IDs")
+      .join[VertexId, Long](_.field0, vertexIds, _.field0,
+      udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+        "my.udf.CrocoPR.join3-" + inputUrl1, configuration
+      ),
+      udfSelectivityKey = "my.udf.CrocoPR.join3-" + inputUrl1
+    ).withName("Join page ranks with vertex IDs")
       .map(joinTuple => (joinTuple.field1.field1, joinTuple.field0.field1)).withName("Make page ranks readable")
       .collect()
 
