@@ -77,7 +77,7 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
         ),
         udfSelectivityKey = "my.udf.tpchq3file.filter1-" + configUrl
       )
-      .withName("Filter customers")
+      .withName("my.udf.tpchq3file.filter1-Filter customers")
 
       .map(_.custKey)
       .withName("Project customers")
@@ -96,7 +96,7 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
         ),
         udfSelectivityKey = "my.udf.tpchq3file.filter2-" + configUrl
       )
-      .withName("Filter orders")
+      .withName("my.udf.tpchq3file.filter2-Filter orders")
 
       .map(order => (order.orderKey, order.custKey, order.orderDate, order.shipPrioritiy))
       .withName("Project orders")
@@ -114,7 +114,7 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
         ),
         udfSelectivityKey = "my.udf.tpchq3file.filter3-" + configUrl
       )
-      .withName("Filter line items")
+      .withName("my.udf.tpchq3file.filter3-Filter line items")
 
       .map(li => (li.orderKey, li.extendedPrice * (1 - li.discount)))
       .withName("Project line items")
@@ -148,7 +148,7 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
         udfSelectivityKey = "my.udf.tpchq3file.reduce-" + configUrl
 
       )
-      .withName("Aggregate revenue")
+      .withName("my.udf.tpchq3file.reduce-Aggregate revenue")
       .collect()
   }
 

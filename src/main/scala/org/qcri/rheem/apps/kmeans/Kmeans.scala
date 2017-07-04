@@ -58,7 +58,7 @@ Kmeans(plugin: Plugin*) {
             "my.udf.kmeans.reduceByKey-" + inputFile, configuration
           ),
           udfSelectivityKey = "my.udf.kmeans.reduceByKey-" + inputFile
-        ).withName("Add up points")
+        ).withName("my.udf.kmeans.reduceByKey-Add up points")
         .withCardinalityEstimator(k)
         .map(_.average).withName("Average points")
 
@@ -77,7 +77,7 @@ Kmeans(plugin: Plugin*) {
               "my.udf.kmeans.flatmap-" + inputFile, configuration
             ),
             udfSelectivityKey = "my.udf.kmeans.flatmap-" + inputFile
-          ).withName("Resurrect centroids")
+          ).withName("my.udf.kmeans.flatmap-Resurrect centroids")
         newCentroids.union(resurrectedCentroids).withName("New+resurrected centroids").withCardinalityEstimator(k)
       } else newCentroids
     }).withName("Loop")

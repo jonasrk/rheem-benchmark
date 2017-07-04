@@ -43,7 +43,7 @@ class CrocoPR(plugins: Plugin*) {
           "my.udf.CrocoPR.distinct1-" + inputUrl1, configuration
         ),
         udfSelectivityKey = "my.udf.CrocoPR.distinct1-" + inputUrl1
-      ).withName("Distinct links")
+      ).withName("my.udf.CrocoPR.distinct1-Distinct links")
 
     // Create vertex IDs.
     val vertexIds = allLinks
@@ -52,12 +52,12 @@ class CrocoPR(plugins: Plugin*) {
           "my.udf.CrocoPR.flatMap-" + inputUrl1, configuration
         ),
         udfSelectivityKey = "my.udf.CrocoPR.flatMap-" + inputUrl1
-      ).withName("Flatten vertices")
+      ).withName("my.udf.CrocoPR.flatMap-Flatten vertices")
       .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
         "my.udf.CrocoPR.distinct2-" + inputUrl1, configuration
       ),
         udfSelectivityKey = "my.udf.CrocoPR.distinct2-" + inputUrl1
-      ).withName("Distinct vertices")
+      ).withName("my.udf.CrocoPR.distinct2-Distinct vertices")
       .zipWithId.withName("Add vertex IDs")
 
 
@@ -68,7 +68,7 @@ class CrocoPR(plugins: Plugin*) {
         "my.udf.CrocoPR.join1-" + inputUrl1, configuration
       ),
       udfSelectivityKey = "my.udf.CrocoPR.join1-" + inputUrl1
-    ).withName("Join source vertex IDs")
+    ).withName("y.udf.CrocoPR.join1-Join source vertex IDs")
       .map { linkAndVertexId =>
         (linkAndVertexId.field1.field0, linkAndVertexId.field0._2)
       }.withName("Set source vertex ID")
@@ -77,7 +77,7 @@ class CrocoPR(plugins: Plugin*) {
         "my.udf.CrocoPR.join2-" + inputUrl1, configuration
       ),
       udfSelectivityKey = "my.udf.CrocoPR.join2-" + inputUrl1
-    ).withName("Join target vertex IDs")
+    ).withName("my.udf.CrocoPR.join2-Join target vertex IDs")
       .map(linkAndVertexId => new Edge(linkAndVertexId.field0._1, linkAndVertexId.field1.field0)).withName("Set target vertex ID")
 
     // Run the PageRank.
@@ -91,7 +91,7 @@ class CrocoPR(plugins: Plugin*) {
         "my.udf.CrocoPR.join3-" + inputUrl1, configuration
       ),
       udfSelectivityKey = "my.udf.CrocoPR.join3-" + inputUrl1
-    ).withName("Join page ranks with vertex IDs")
+    ).withName("my.udf.CrocoPR.join3-Join page ranks with vertex IDs")
       .map(joinTuple => (joinTuple.field1.field1, joinTuple.field0.field1)).withName("Make page ranks readable")
       .collect()
 

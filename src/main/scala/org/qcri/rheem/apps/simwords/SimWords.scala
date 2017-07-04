@@ -39,25 +39,25 @@ class SimWords(plugins: Plugin*) {
       .readTextFile(inputFile).withName("Read corpus (1)")
       .flatMapJava(new ScrubFunction,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.flatMapJava1", configuration
+          "my.udf.SimWords.flatMapJava1-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.flatMapJava1"
-      ).withName("Split & scrub")
+        udfSelectivityKey = "my.udf.SimWords.flatMapJava1-"
+      ).withName("my.udf.SimWords.flatMapJava1-Split & scrub")
       .map(word => (word, 1)).withName("Add word counter")
       .reduceByKey(_._1, (wc1, wc2) => (wc1._1, wc1._2 + wc2._2),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.reduceByKey1", configuration
+          "my.udf.SimWords.reduceByKey1-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.reduceByKey1"
-      ).withName("Sum word counters")
+        udfSelectivityKey = "my.udf.SimWords.reduceByKey1-"
+      ).withName("my.udf.SimWords.reduceByKey1-Sum word counters")
       .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .filter(_._2 >= _minWordOccurrences,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.filter1", configuration
+          "my.udf.SimWords.filter1-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.filter1"
+        udfSelectivityKey = "my.udf.SimWords.filter1-"
       )
-      .withName("Filter frequent words")
+      .withName("my.udf.SimWords.filter1-Filter frequent words")
       .map(_._1).withName("Strip word counter")
       .zipWithId.withName("Zip with ID")
       .map(t => (t.field1, t.field0.toInt)).withName("Convert ID attachment")
@@ -69,20 +69,20 @@ class SimWords(plugins: Plugin*) {
       .flatMapJava(
         new CreateWordNeighborhoodFunction(neighborhoodReach, "wordIds"),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.flatMapJava2", configuration
+          "my.udf.SimWords.flatMapJava2-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.flatMapJava2",
+        udfSelectivityKey = "my.udf.SimWords.flatMapJava2-",
         udfLoad = LoadProfileEstimators.createFromSpecification("rheem.apps.simwords.udfs.create-neighborhood.load", configuration)
 
       )
       .withBroadcast(wordIds, "wordIds")
-      .withName("Create word vectors")
+      .withName("my.udf.SimWords.flatMapJava2-Create word vectors")
       .reduceByKey(_._1, (wv1, wv2) => (wv1._1, wv1._2 + wv2._2),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.reduceByKey2", configuration
+          "my.udf.SimWords.reduceByKey2-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.reduceByKey2"
-      ).withName("Add word vectors")
+        udfSelectivityKey = "my.udf.SimWords.reduceByKey2-"
+      ).withName("my.udf.SimWords.reduceByKey2-Add word vectors")
       .map { wv =>
         wv._2.normalize(); wv
       }.withName("Normalize word vectors")
@@ -103,10 +103,10 @@ class SimWords(plugins: Plugin*) {
         for (i <- 0 to _numClusters) yield (i, SparseVector.createRandom(idArray, .99, _numClusters))
       },
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.flatMap", configuration
+          "my.udf.SimWords.flatMap-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.flatMap"
-      ).withName("Generate centroids")
+        udfSelectivityKey = "my.udf.SimWords.flatMap-"
+      ).withName("my.udf.SimWords.flatMap-Generate centroids")
 
     // Run k-means on the vectors.
     val finalCentroids = initialCentroids.repeat(numIterations, { centroids: DataQuanta[(Int, SparseVector)] =>
@@ -120,11 +120,11 @@ class SimWords(plugins: Plugin*) {
         .map(assignment => (assignment._3, assignment._2)).withName("Strip word ID")
         .reduceByKey(_._1, (wv1: (Int, SparseVector), wv2: (Int, SparseVector)) => (wv1._1, wv1._2 + wv2._2),
           udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-            "my.udf.SimWords.reduceByKey3", configuration
+            "my.udf.SimWords.reduceByKey3-", configuration
           ),
-          udfSelectivityKey = "my.udf.SimWords.reduceByKey3"
+          udfSelectivityKey = "my.udf.SimWords.reduceByKey3-"
         )
-        .withName("Add up cluster words").withCardinalityEstimator((in: Long) => _numClusters.toLong)
+        .withName("my.udf.SimWords.reduceByKey3-Add up cluster words").withCardinalityEstimator((in: Long) => _numClusters.toLong)
         .map { centroid: (Int, SparseVector) => centroid._2.normalize(); centroid }.withName("Normalize centroids")
 
       newCentroids
@@ -136,10 +136,10 @@ class SimWords(plugins: Plugin*) {
       .map(assigment => (assigment._3, List(assigment._1))).withName("Discard word vectors")
       .reduceByKey(_._1, (c1, c2) => (c1._1, c1._2 ++ c2._2),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.SimWords.reduceByKey4", configuration
+          "my.udf.SimWords.reduceByKey4-", configuration
         ),
-        udfSelectivityKey = "my.udf.SimWords.reduceByKey4"
-      ).withName("Create clusters")
+        udfSelectivityKey = "my.udf.SimWords.reduceByKey4-"
+      ).withName("my.udf.SimWords.reduceByKey4-Create clusters")
       .map(_._2).withName("Discard cluster IDs")
       .mapJava(new ResolveClusterFunction("wordIds")).withBroadcast(wordIds, "wordIds").withName("Resolve word IDs")
 

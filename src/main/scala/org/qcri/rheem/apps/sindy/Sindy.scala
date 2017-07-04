@@ -47,7 +47,7 @@ class Sindy(plugins: Plugin*) {
               "my.udf.Sindy.flatmap1-" + paths, configuration
             ),
             udfSelectivityKey = "my.udf.Sindy.flatmap1-" + paths
-          ).withName(s"Create cells for $path")
+          ).withName(s"my.udf.Sindy.flatmap1-Create cells for $path")
       }
       .reduce(_ union _)
 
@@ -58,25 +58,25 @@ class Sindy(plugins: Plugin*) {
           "my.udf.Sindy.reduceBy1-" + paths, configuration
         ),
         udfSelectivityKey = "my.udf.Sindy.reduceBy1-" + paths
-      ).withName("Merge cells")
+      ).withName("my.udf.Sindy.reduceBy1-Merge cells")
       .flatMapJava(new IndCandidateGenerator,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.Sindy.flatmap2-" + paths, configuration
         ),
         udfSelectivityKey = "my.udf.Sindy.flatmap2-" + paths
-      ).withName("Generate IND candidate sets")
+      ).withName("my.udf.Sindy.flatmap2-Generate IND candidate sets")
       .reduceByKeyJava(toSerializableFunction(_._1), new IndCandidateMerger,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.Sindy.reduceBy2-" + paths, configuration
         ),
         udfSelectivityKey = "my.udf.Sindy.reduceBy2-" + paths
-      ).withName("Merge IND candidate sets")
+      ).withName("my.udf.Sindy.reduceBy2-Merge IND candidate sets")
       .filter(_._2.length > 0,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.Sindy.filter1-" + paths, configuration
         ),
         udfSelectivityKey = "my.udf.Sindy.filter1-" + paths
-      ).withName("Filter empty candidate sets")
+      ).withName("my.udf.Sindy.filter1-Filter empty candidate sets")
       .collect()
 
     def resolveColumnId(id: Int) = fileColumnIdOffsets
