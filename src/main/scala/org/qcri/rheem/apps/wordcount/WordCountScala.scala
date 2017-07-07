@@ -54,7 +54,7 @@ class WordCountScala(plugin: Plugin*) {
         ),
         udfSelectivityKey = "my.udf.wordcount.reduce-" + inputUrl
       ).withName("my.udf.wordcount.reduce-Add counters")
-      .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
+      //.withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .collect()
   }
 
