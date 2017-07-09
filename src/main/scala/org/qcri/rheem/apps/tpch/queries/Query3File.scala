@@ -121,12 +121,22 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
     // Join and aggregate the different datasets.
     customerKeys
-      .join[(Long, Long, Int, Int), Long](identity, orders, _._2)
+      .join[(Long, Long, Int, Int), Long](identity, orders, _._2,
+      udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+        "my.udf.tpchq3file.join1-" + configUrl, configuration
+      ),
+      udfSelectivityKey = "my.udf.tpchq3file.join1-" + configUrl
+    )
       .withName("Join customers with orders")
       .map(_.field1) // (orderKey, custKey, orderDate, shipPriority)
       .withName("Project customer-order join product")
 
-      .join[(Long, Double), Long](_._1, lineItems, _._1)
+      .join[(Long, Double), Long](_._1, lineItems, _._1,
+      udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
+        "my.udf.tpchq3file.join2-" + configUrl, configuration
+      ),
+      udfSelectivityKey = "my.udf.tpchq3file.join2-" + configUrl
+    )
       .withName("Join CO with line items")
       .map(coli => Query3Result(
         orderKey = coli.field1._1,
