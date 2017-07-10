@@ -50,7 +50,7 @@ class SimWords(plugins: Plugin*) {
         ),
         udfSelectivityKey = "my.udf.SimWords.reduceByKey1-"
       ).withName("my.udf.SimWords.reduceByKey1-Sum word counters")
-      .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
+//      .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .filter(_._2 >= _minWordOccurrences,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.SimWords.filter1-", configuration
@@ -124,7 +124,8 @@ class SimWords(plugins: Plugin*) {
           ),
           udfSelectivityKey = "my.udf.SimWords.reduceByKey3-"
         )
-        .withName("my.udf.SimWords.reduceByKey3-Add up cluster words").withCardinalityEstimator((in: Long) => _numClusters.toLong)
+        .withName("my.udf.SimWords.reduceByKey3-Add up cluster words")
+//        .withCardinalityEstimator((in: Long) => _numClusters.toLong)
         .map { centroid: (Int, SparseVector) => centroid._2.normalize(); centroid }.withName("Normalize centroids")
 
       newCentroids

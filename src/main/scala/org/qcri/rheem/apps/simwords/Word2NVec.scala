@@ -43,7 +43,7 @@ class Word2NVec(plugins: Plugin*) {
       .flatMapJava(new ScrubFunction, selectivity = wordsPerLine).withName("Split & scrub")
       .map(word => (word, 1)).withName("Add word counter")
       .reduceByKey(_._1, (wc1, wc2) => (wc1._1, wc1._2 + wc2._2)).withName("Sum word counters")
-      .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
+//      .withCardinalityEstimator((in: Long) => math.round(in * 0.01))
       .filter(_._2 >= _minWordOccurrences, selectivity = 10d / (9d + minWordOccurrences))
       .withName("Filter frequent words")
       .map(_._1).withName("Strip word counter")
