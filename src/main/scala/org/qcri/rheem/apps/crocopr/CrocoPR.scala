@@ -42,7 +42,7 @@ class CrocoPR(plugins: Plugin*) {
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.CrocoPR.union-" + inputUrl1, configuration
         ),
-        udfSelectivityKey = "my.udf.Sindy.union-" + inputUrl1
+        udfSelectivityKey = "my.udf.CrocoPR.union-" + inputUrl1
       ).withName("Union links")
       .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.udf.CrocoPR.distinct1-" + inputUrl1, configuration
