@@ -127,7 +127,7 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
       ),
       udfSelectivityKey = "my.udf.tpchq3file.join1-" + configUrl
     )
-      .withName("Join customers with orders")
+      .withName("my.udf.tpchq3file.join1-Join customers with orders")
       .map(_.field1) // (orderKey, custKey, orderDate, shipPriority)
       .withName("Project customer-order join product")
 
@@ -137,7 +137,7 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
       ),
       udfSelectivityKey = "my.udf.tpchq3file.join2-" + configUrl
     )
-      .withName("Join CO with line items")
+      .withName("y.udf.tpchq3file.join2-Join CO with line items")
       .map(coli => Query3Result(
         orderKey = coli.field1._1,
         revenue = coli.field1._2,

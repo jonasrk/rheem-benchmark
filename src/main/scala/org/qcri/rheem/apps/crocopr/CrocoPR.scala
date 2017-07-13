@@ -73,7 +73,7 @@ class CrocoPR(plugins: Plugin*) {
         "my.udf.CrocoPR.join1-" + inputUrl1, configuration
       ),
       udfSelectivityKey = "my.udf.CrocoPR.join1-" + inputUrl1
-    ).withName("y.udf.CrocoPR.join1-Join source vertex IDs")
+    ).withName("my.udf.CrocoPR.join1-Join source vertex IDs")
       .map { linkAndVertexId =>
         (linkAndVertexId.field1.field0, linkAndVertexId.field0._2)
       }.withName("Set source vertex ID")
