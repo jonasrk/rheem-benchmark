@@ -52,7 +52,7 @@ class CrocoPR(plugins: Plugin*) {
 
     // Create vertex IDs.
     val vertexIds = allLinks
-      .flatmap(link => Seq(link._1, link._2),
+      .flatMap(link => Seq(link._1, link._2),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
           "my.flatmap", configuration
         ),
