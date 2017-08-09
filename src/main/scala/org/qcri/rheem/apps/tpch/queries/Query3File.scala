@@ -73,11 +73,11 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
       .filter(_.mktSegment == _segment,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.filter1-" + configUrl, configuration
+          "my.filter", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.filter1-" + configUrl
+        udfSelectivityKey = "my.filter"
       )
-      .withName("my.udf.tpchq3file.filter1-Filter customers")
+      .withName("my.filter")
 
       .map(_.custKey)
       .withName("Project customers")
@@ -92,11 +92,11 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
       .filter(_.orderDate < _date,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.filter2-" + configUrl, configuration
+          "my.filter", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.filter2-" + configUrl
+        udfSelectivityKey = "my.filter"
       )
-      .withName("my.udf.tpchq3file.filter2-Filter orders")
+      .withName("my.filter")
 
       .map(order => (order.orderKey, order.custKey, order.orderDate, order.shipPrioritiy))
       .withName("Project orders")
@@ -110,11 +110,11 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
 
       .filter(_.shipDate > _date,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.filter3-" + configUrl, configuration
+          "my.filter", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.filter3-" + configUrl
+        udfSelectivityKey = "my.filter3"
       )
-      .withName("my.udf.tpchq3file.filter3-Filter line items")
+      .withName("my.filter")
 
       .map(li => (li.orderKey, li.extendedPrice * (1 - li.discount)))
       .withName("Project line items")
@@ -123,19 +123,19 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
     customerKeys
       .join[(Long, Long, Int, Int), Long](identity, orders, _._2,
       udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-        "my.udf.tpchq3file.join1-" + configUrl, configuration
+        "my.join", configuration
       ),
-      udfSelectivityKey = "my.udf.tpchq3file.join1-" + configUrl
+      udfSelectivityKey = "my.join"
     )
-      .withName("my.udf.tpchq3file.join1-Join customers with orders")
+      .withName("my.join")
       .map(_.field1) // (orderKey, custKey, orderDate, shipPriority)
       .withName("Project customer-order join product")
 
       .join[(Long, Double), Long](_._1, lineItems, _._1,
       udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-        "my.udf.tpchq3file.join2-" + configUrl, configuration
+        "my.join", configuration
       ),
-      udfSelectivityKey = "my.udf.tpchq3file.join2-" + configUrl
+      udfSelectivityKey = "my.join"
     )
       .withName("y.udf.tpchq3file.join2-Join CO with line items")
       .map(coli => Query3Result(
@@ -153,12 +153,12 @@ class Query3File(selectivity: Double, configUrl: String, plugins: Plugin*) exten
           t2
         },
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.tpchq3file.reduce-" + configUrl, configuration
+          "my.reduceBy", configuration
         ),
-        udfSelectivityKey = "my.udf.tpchq3file.reduce-" + configUrl
+        udfSelectivityKey = "my.reduceBy"
 
       )
-      .withName("my.udf.tpchq3file.reduce-Aggregate revenue")
+      .withName("my.reduceBy")
       .collect()
   }
 

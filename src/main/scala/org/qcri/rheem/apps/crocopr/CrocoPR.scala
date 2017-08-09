@@ -40,29 +40,29 @@ class CrocoPR(plugins: Plugin*) {
     val allLinks = links1
       .union(links2,
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.CrocoPR.union-" + inputUrl1, configuration
+          "my.union", configuration
         ),
-        udfSelectivityKey = "my.udf.CrocoPR.union-" + inputUrl1
+        udfSelectivityKey = "my.union"
       ).withName("Union links")
       .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.CrocoPR.distinct1-" + inputUrl1, configuration
+          "my.distinct", configuration
         ),
-        udfSelectivityKey = "my.udf.CrocoPR.distinct1-" + inputUrl1
-      ).withName("my.udf.CrocoPR.distinct1-Distinct links")
+        udfSelectivityKey = "my.distinct"
+      ).withName("my.distinct")
 
     // Create vertex IDs.
     val vertexIds = allLinks
-      .flatMap(link => Seq(link._1, link._2),
+      .flatmap(link => Seq(link._1, link._2),
         udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-          "my.udf.CrocoPR.flatMap-" + inputUrl1, configuration
+          "my.flatmap", configuration
         ),
-        udfSelectivityKey = "my.udf.CrocoPR.flatMap-" + inputUrl1
-      ).withName("my.udf.CrocoPR.flatMap-Flatten vertices")
+        udfSelectivityKey = "my.flatmap"
+      ).withName("my.flatmap")
       .distinct(udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-        "my.udf.CrocoPR.distinct2-" + inputUrl1, configuration
+        "my.distinct", configuration
       ),
-        udfSelectivityKey = "my.udf.CrocoPR.distinct2-" + inputUrl1
-      ).withName("my.udf.CrocoPR.distinct2-Distinct vertices")
+        udfSelectivityKey = "my.distinct"
+      ).withName("my.distinct")
       .zipWithId.withName("Add vertex IDs")
 
 
@@ -70,19 +70,19 @@ class CrocoPR(plugins: Plugin*) {
     val edges = allLinks
       .join[VertexId, String](_._1, vertexIds, _.field1,
       udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-        "my.udf.CrocoPR.join1-" + inputUrl1, configuration
+        "my.join", configuration
       ),
-      udfSelectivityKey = "my.udf.CrocoPR.join1-" + inputUrl1
-    ).withName("my.udf.CrocoPR.join1-Join source vertex IDs")
+      udfSelectivityKey = "my.join"
+    ).withName("my.join")
       .map { linkAndVertexId =>
         (linkAndVertexId.field1.field0, linkAndVertexId.field0._2)
       }.withName("Set source vertex ID")
       .join[VertexId, String](_._2, vertexIds, _.field1,
       udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-        "my.udf.CrocoPR.join2-" + inputUrl1, configuration
+        "my.join", configuration
       ),
-      udfSelectivityKey = "my.udf.CrocoPR.join2-" + inputUrl1
-    ).withName("my.udf.CrocoPR.join2-Join target vertex IDs")
+      udfSelectivityKey = "my.join"
+    ).withName("my.join")
       .map(linkAndVertexId => new Edge(linkAndVertexId.field0._1, linkAndVertexId.field1.field0)).withName("Set target vertex ID")
 
     // Run the PageRank.
@@ -93,10 +93,10 @@ class CrocoPR(plugins: Plugin*) {
       .map(identity).withName("Hotfix")
       .join[VertexId, Long](_.field0, vertexIds, _.field0,
       udfSelectivity = ProbabilisticDoubleInterval.createFromSpecification(
-        "my.udf.CrocoPR.join3-" + inputUrl1, configuration
+        "my.join", configuration
       ),
-      udfSelectivityKey = "my.udf.CrocoPR.join3-" + inputUrl1
-    ).withName("my.udf.CrocoPR.join3-Join page ranks with vertex IDs")
+      udfSelectivityKey = "my.join" + inputUrl1
+    ).withName("my.join")
       .map(joinTuple => (joinTuple.field1.field1, joinTuple.field0.field1)).withName("Make page ranks readable")
       .collect()
 
